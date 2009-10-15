@@ -5,12 +5,18 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "simplews"
-    gem.summary = %Q{Create SOAP Web Services}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Simplifies creating soap4r web services as stand-alone servers}
+    gem.description = %Q{Generates WSDL automatically. It manages jobs as asynchronous processes}
     gem.email = "miguel.vazquez@fdi.ucm.es"
     gem.homepage = "http://github.com/mikisvaz/simplews"
     gem.authors = ["Miguel Vazquez"]
-    gem.add_development_dependency "thoughtbot-shoulda"
+
+    gem.files = Dir['lib/**/*.rb']
+    gem.test_files = Dir['lib/**/test_*.rb']
+
+    gem.add_dependency('soap4r')
+    gem.add_dependency('rand')
+    gem.add_dependency('builder')
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError
@@ -20,7 +26,7 @@ end
 require 'rake/testtask'
 Rake::TestTask.new(:test) do |test|
   test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/*_test.rb'
+  test.pattern = 'test/**/test_*.rb'
   test.verbose = true
 end
 

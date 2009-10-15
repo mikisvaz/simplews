@@ -1,0 +1,16 @@
+SimpleWS=/$PWD filter="*.rb Rakefile *.sh *.rake *.txt" {
+ Rakefile
+ lib=lib {
+  simplews.rb
+  simplews=simplews {
+   jobs.rb
+  }
+ }
+ test=test {
+  test_helper.rb
+  test_simplews.rb
+  simplews=simplews{
+   test_jobs.rb
+  }
+ }
+}
