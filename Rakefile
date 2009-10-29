@@ -14,7 +14,7 @@ begin
     gem.files = Dir['lib/**/*.rb']
     gem.test_files = Dir['lib/**/test_*.rb']
 
-    gem.add_dependency('soap4r')
+    #gem.add_dependency('soap4r')
     gem.add_dependency('rand')
     gem.add_dependency('builder')
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
