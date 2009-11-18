@@ -1,4 +1,5 @@
 SimpleWS=/$PWD filter="*.rb Rakefile *.sh *.rake *.txt" {
+ README.rdoc
  Rakefile
  lib=lib {
   simplews.rb
