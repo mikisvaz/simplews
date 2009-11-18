@@ -46,6 +46,8 @@ require 'builder'
 class SimpleWS <  SOAP::RPC::StandaloneServer
   VERSION = "1.3.6"
 
+  # Saves method defined in the class to be served by the instances
+  @@methods = {}
 
   # This is a helper function for clients. Given the +url+ where the
   # server is listening, as well as the name of the server, it can
@@ -92,6 +94,9 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     @bindings    = []
 
     serve :wsdl, %w(),  :return => :string
+    @@methods.each{|name, info|
+      serve name, info[:args], info[:types], &info[:block]
+    }
   end
 
 
@@ -121,6 +126,13 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     add_to_wsdl(name, args, types)
 
     nil
+  end
+
+  # Saves the method to be served by the instances. The initialization of an
+  # instance check if there where any methods declared to be served in the class
+  # and add them.
+  def self.serve(name, args=[], types={}, &block)
+    @@methods[name] = {:args => args, :types => types, :block => block}
   end
 
   # If +filename+ is specified it saves the +WSDL+ file in that file. If
