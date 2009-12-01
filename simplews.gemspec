@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{simplews}
-  s.version = "1.4.0"
+  s.version = "1.5.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Miguel Vazquez"]
-  s.date = %q{2009-11-25}
+  s.date = %q{2009-12-01}
   s.description = %q{Generates WSDL automatically. It manages jobs as asynchronous processes}
   s.email = %q{miguel.vazquez@fdi.ucm.es}
   s.extra_rdoc_files = [
@@ -18,7 +18,8 @@ Gem::Specification.new do |s|
   ]
   s.files = [
     "lib/simplews.rb",
-     "lib/simplews/jobs.rb"
+     "lib/simplews/jobs.rb",
+     "lib/simplews/rake.rb"
   ]
   s.homepage = %q{http://github.com/mikisvaz/simplews}
   s.rdoc_options = ["--charset=UTF-8"]
