@@ -256,12 +256,12 @@ EOT
 
   TYPES2WSDL = {
     :boolean => 'xsd:boolean',
-    :string => 'xsd:string',
+    :string  => 'xsd:string',
     :integer => 'xsd:integer',
-    :float => 'xsd:float',
-    :array  => 'tns:ArrayOfString',
-    :hash  => 'tns:Map',
-    :binary => 'xsd:base64Binary',
+    :float   => 'xsd:float',
+    :array   => 'tns:ArrayOfString',
+    :hash    => 'tns:Map',
+    :binary  => 'xsd:base64Binary',
   }
 
 
