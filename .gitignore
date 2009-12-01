@@ -5,3 +5,5 @@ rdoc
 pkg
 tmp*
 *.wsdl
+
+samples/rake/work/

@@ -1,0 +1,15 @@
+desc "prepare: Prepare stuff"
+task 'prepare' do |t|
+  sleep 2
+end
+
+rule (/name\/.*/) => %w(prepare) do |t|
+  sleep 2
+  File.open(t.name, 'w'){|f| f.puts($name || "name")}
+end
+
+
+rule (/age\/.*/)  => %w(prepare) do |t|
+  sleep 2
+  File.open(t.name, 'w'){|f| f.puts($age || "age")}
+end
