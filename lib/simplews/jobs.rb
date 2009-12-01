@@ -382,7 +382,7 @@ class SimpleWS::Jobs < SimpleWS
     @workdir
   end
 
-  def initialize(name, description, host, port, workdir = nil, *args)
+  def initialize(name, description, host = 'localhost' , port = '8081', workdir = nil, *args)
     super(name, description, host, port, *args)
 
     @workdir = workdir || "/tmp/#{ name }"
