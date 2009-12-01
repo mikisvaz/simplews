@@ -295,6 +295,10 @@ class SimpleWS::Jobs < SimpleWS
         save
       end
 
+      def result_filenames
+        @state[:results]
+      end
+
       def abort
         raise SimpleWS::Jobs::Aborted
         save

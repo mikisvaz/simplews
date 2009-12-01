@@ -47,7 +47,7 @@ class SimpleWS::Jobs::Scheduler::Job
     EOC
 
     load rakefile
-    files = SimpleWS::Jobs::Scheduler::Job.job_info(job_name)[:results]
+    files = result_filenames
     Rake::Task[files.first].invoke
   end
 
