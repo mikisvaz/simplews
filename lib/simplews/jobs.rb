@@ -265,9 +265,9 @@ class SimpleWS::Jobs < SimpleWS
 
       def write(file, contents)
         path = Job.path(file, @name)
-        fout = File.open(path,'w')
-        fout.write contents
-        fout.close
+        File.open(path,'w') do |fout|
+          fout.write contents
+        end
       end
 
       def message(message)

@@ -47,7 +47,7 @@ class SimpleWS::Jobs::Scheduler::Job
     $step_descriptions = {}
     load rakefile
     $step_descriptions.each{|re, info|
-      add_description(re, info[:step], info[:message])
+      add_description(re, info[:step], info[:description])
     }
     files = result_filenames
 
