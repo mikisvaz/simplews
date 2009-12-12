@@ -22,7 +22,7 @@ class SimpleWS::Jobs::Scheduler::Job
       alias_method :old_execute, :execute
       def execute(*args)
         action = name
-        message = $_step_desriptions.collect{|rexp, msg| 
+        message = $_step_descriptions.collect{|rexp, msg| 
           if name.match(rexp)
             msg
           else
@@ -37,22 +37,26 @@ class SimpleWS::Jobs::Scheduler::Job
         if message.match(/^(\w+): (.*)/)
           $_current_job.step($1, $2)
         else
-          $_current_job.step(name, message)
+          $_current_job.step(action, message)
         end
 
         old_execute(*args)
       end
     EOC
 
-    $step_descriptions = {}
     load rakefile
-    $step_descriptions.each{|re, info|
-      add_description(re, info[:step], info[:description])
-    }
+    if defined? Rake::Pipeline
+      Rake::Pipeline::step_descriptions.each{|re, description|
+        if description.match(/(.*): (.*)/)
+          add_description(re, $1, $2)
+        end
+      }
+    end
+
     files = result_filenames
 
     $_current_job = self
-    $_step_desriptions = @step_descriptions || {}
+    $_step_descriptions = @step_descriptions || {}
     Rake::Task[files.first].invoke
   end
 
