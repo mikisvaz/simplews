@@ -2,6 +2,7 @@
 
 require 'simplews/jobs'
 require 'rake'
+require 'fileutils'
 
 class SimpleWS::Jobs::Scheduler::Job
 
@@ -45,6 +46,11 @@ class SimpleWS::Jobs::Scheduler::Job
     EOC
 
     load rakefile
+    @@steps.each{|step|
+      step_dirname = File.join(workdir, step.to_s)
+      FileUtils.mkdir_p step_dirname unless File.exists? step_dirname
+    }
+
     if defined? Rake::Pipeline
       Rake::Pipeline::step_descriptions.each{|re, description|
         if description.match(/(.*): (.*)/)

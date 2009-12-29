@@ -1,3 +1,5 @@
+require 'rubygems'
+gem 'soap4r'
 require 'soap/rpc/standaloneServer'
 require 'builder'
 
@@ -77,14 +79,22 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     driver
   end
 
+  attr_accessor :description
+
   # Creates an instance of a Server. The parameter +name+ specifies the
   # +namespace+ used in the +WSDL+, +description+ is the description
   # also included in the +WSDL+. The parameters +host+ and +port+,
   # specify where the server will be listening, they are parameters of
   # the +super+ class SOAP::RPC::StandaloneServer, they are made
   # explicit here because they are included in the +WSDL+ as well.
-  def initialize(name="WS", description="", host="localhost", port="1984", *args)
+  def initialize(name=nil, description=nil, host=nil, port=nil, *args, &block)
+    name ||= self.class.to_s
+    description ||= "Web Server for #{ name }"
+    host ||= "localhost"
+    port ||= "1984"
+
     super(description, "urn:#{ name }", host, port, *args)
+
     @host        = host
     @port        = port
     @name        = name
@@ -93,11 +103,25 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     @operations  = []
     @bindings    = []
 
+    if block_given?
+      instance_eval &block
+    end
+
+    puts "Server #{ name } at #{ host }:#{ port }"
+
     serve :wsdl, %w(),  :return => :string
     METHODS.each{|name, info|
       serve name, info[:args], info[:types], &info[:block]
     }
   end
+
+  def name=(name)
+    @name = name
+    appname = name
+    default_namespace = "urn:#{name}"
+  end
+
+  
 
 
   # This method tells the server to provide a method named by the +name+
@@ -174,7 +198,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     end
     @messages << message
     message =  Builder::XmlMarkup.new(:indent => 2).message :name => "#{ name }Response" do |xml|
-      type = types[:return] || types["return"]
+      type = types[:return] || types["return"] || :string
       if type
         type = type.to_sym
         xml.part :name => 'return', :type => TYPES2WSDL[type]
@@ -231,7 +255,7 @@ targetNamespace="${NAME}-NS">
                </restriction>
             </complexContent>
          </complexType>
-     </schema>
+       </schema>
    </types>
 
 ${MESSAGES}
@@ -260,7 +284,6 @@ EOT
     :integer => 'xsd:integer',
     :float   => 'xsd:float',
     :array   => 'tns:ArrayOfString',
-    :hash    => 'tns:Map',
     :binary  => 'xsd:base64Binary',
   }
 
