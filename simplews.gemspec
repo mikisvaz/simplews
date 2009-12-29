@@ -5,19 +5,22 @@
 
 Gem::Specification.new do |s|
   s.name = %q{simplews}
-  s.version = "1.5.2"
+  s.version = "1.6.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Miguel Vazquez"]
-  s.date = %q{2009-12-08}
+  s.date = %q{2009-12-30}
+  s.default_executable = %q{start_ws}
   s.description = %q{Generates WSDL automatically. It manages jobs as asynchronous processes}
   s.email = %q{miguel.vazquez@fdi.ucm.es}
+  s.executables = ["start_ws"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
   ]
   s.files = [
-    "lib/simplews.rb",
+    "lib/rake_pipeline.rb",
+     "lib/simplews.rb",
      "lib/simplews/jobs.rb",
      "lib/simplews/rake.rb"
   ]
@@ -32,13 +35,16 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+      s.add_runtime_dependency(%q<soap4r>, [">= 1.5.8"])
       s.add_runtime_dependency(%q<rand>, [">= 0"])
       s.add_runtime_dependency(%q<builder>, [">= 0"])
     else
+      s.add_dependency(%q<soap4r>, [">= 1.5.8"])
       s.add_dependency(%q<rand>, [">= 0"])
       s.add_dependency(%q<builder>, [">= 0"])
     end
   else
+    s.add_dependency(%q<soap4r>, [">= 1.5.8"])
     s.add_dependency(%q<rand>, [">= 0"])
     s.add_dependency(%q<builder>, [">= 0"])
   end
