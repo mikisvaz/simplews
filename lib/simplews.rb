@@ -110,6 +110,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     puts "Server #{ name } at #{ host }:#{ port }"
 
     desc "Return the WSDL describing the web server"
+    param_desc :return => "WSDL description"
     serve :wsdl, %w(),  :return => :string
     METHODS.each{|name, info|
       serve name, info[:args], info[:types], &info[:block]
@@ -127,24 +128,24 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   @@last_param_description = nil
   STEP_DESCRIPTIONS = {}
   PARAMETER_DESCRIPTIONS = {}
-  def desc(text)
+  def desc(text = "")
     @@last_description = text
   end
 
   # Add descriptions for the parameters of the next method served
-  def param_desc(param_descriptions)
+  def param_desc(param_descriptions = {})
     @@last_param_description = {} 
     param_descriptions.each{|param, description| @@last_param_description[param.to_s] = description}
   end
 
   # Add a description for the next method served defined in at the class level
-  def self.desc(text)
+  def self.desc(text = "")
     @@last_description = text
   end
 
   # Add descriptions for the parameters of the next method served at the class
   # level
-  def self.param_desc(param_descriptions)
+  def self.param_desc(param_descriptions = {})
     @@last_param_description = {} 
     param_descriptions.each{|param, description| @@last_param_description[param.to_s] = description}
   end
@@ -235,15 +236,16 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     @messages << message
 
     message =  Builder::XmlMarkup.new(:indent => 2).message :name => "#{ name }Response" do |xml|
-      type = types[:return] || types["return"] || :string
+      type = [types[:return], types["return"]].compact.first 
+      type = :string if type.nil? 
       if type
         type = type.to_sym
-        end
         xml.part :name => 'return', :type => TYPES2WSDL[type] do
           if PARAMETER_DESCRIPTIONS[name] && PARAMETER_DESCRIPTIONS[name]['return']
             xml.documentation PARAMETER_DESCRIPTIONS[name]['return'] 
           end
         end
+      end
     end
     @messages << message
 

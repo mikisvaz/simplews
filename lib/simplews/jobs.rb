@@ -369,6 +369,7 @@ class SimpleWS::Jobs < SimpleWS
     PARAMETER_DESCRIPTIONS[name.to_s] ||= @@last_param_description 
     @@last_description = nil
     @@last_param_description = nil
+    PARAMETER_DESCRIPTIONS[name.to_s]['return'] ||= 'Job identifier' if PARAMETER_DESCRIPTIONS[name.to_s]
 
     Scheduler.task name, results, block
     serve name.to_s, params + ['suggested_name'], types.merge(:suggested_name => 'string', :return => :string) do |*args|
@@ -382,6 +383,10 @@ class SimpleWS::Jobs < SimpleWS
     PARAMETER_DESCRIPTIONS[name.to_s] ||= @@last_param_description 
     @@last_description = nil
     @@last_param_description = nil
+    if PARAMETER_DESCRIPTIONS[name.to_s]
+      PARAMETER_DESCRIPTIONS[name.to_s]['return'] ||= 'Job identifier' 
+      PARAMETER_DESCRIPTIONS[name.to_s]['suggested_name'] ||= 'Suggested name for the job' 
+    end
 
     Scheduler.task name, results, block
     @@tasks[name] = {:params => params, :types => types};
@@ -408,44 +413,66 @@ class SimpleWS::Jobs < SimpleWS
       end
     }
 
+
+    desc "Return the names of the jobs in the queue"
+    param_desc :return => "Array of job names"
     serve :queue, [], :return => :array do 
       Scheduler.queue.collect{|info| info[:name]}
     end
 
+    desc "Check the status of a job"
+    param_desc :job => "Job identifier", :return => "Status code. Special status codes are: 'queue', 'done', 'error', and 'aborted'"
     serve :status, ['job'], :job => :string, :return => :string do |job|
       Scheduler.job_info(job)[:status].to_s
     end
 
+    desc "Return an array with the messages issued by the job"
+    param_desc :job => "Job identifier", :return => "Array with message strings"
     serve :messages, ['job'], :job => :string, :return => :array do |job|
       Scheduler.job_info(job)[:messages]
     end
 
+    desc "Return a YAML string containing arbitrary information set up by the job"
+    param_desc :job => "Job identifier", :return => "Hash with arbitrary values in YAML format"
     serve :info, ['job'], :job => :string, :return => :string do |job|
       Scheduler.job_info(job)[:info].to_yaml
     end
 
-    serve :abort, %w(job), :job => :string do |job|
+    desc "Abort the job"
+    param_desc :job => "Job identifier"
+    serve :abort, %w(job), :job => :string, :return => false do |job|
       Scheduler.abort(job)
     end
 
+    desc "Check if the job is done. Could have finished successfully, with error, or have been aborted"
+    param_desc :job => "Job identifier", :return => "True if the job has status 'done', 'error' or 'aborted'"
     serve :done, %w(job), :job => :string, :return => :boolean do |job|
       [:done, :error, :aborted].include? Scheduler.job_info(job)[:status].to_sym
     end
 
+    desc "Check if the job has finished with error. The last message is the error message"
+    param_desc :job => "Job identifier", :return => "True if the job has status 'error'"
     serve :error, %w(job), :job => :string, :return => :boolean do |job|
       Scheduler.job_info(job)[:status] == :error
     end
 
+    desc "Check if the job has been aborted"
+    param_desc :job => "Job identifier", :return => "True if the job has status 'aborted'"
     serve :aborted, %w(job), :job => :string, :return => :boolean do |job|
       Scheduler.job_info(job)[:status] == :aborted
     end
 
+    desc "Return an array with result identifiers to be used with the 'result' operation. The content of the results depends
+    on the task"
+    param_desc :job => "Job identifier", :return => "Array of result identifiers"
     serve :results, %w(job), :return => :array do |job|
       results = Scheduler.job_results(job)    
       @results.merge! Hash[*results.flatten]
       results.collect{|p| p[0]}
     end
 
+    desc "Return the content of the result specified by the result identifier. These identifiers are retrieve using the 'results' operation"
+    param_desc :result => "Result identifier", :return => "Content of the result file, in Base64 encoding for compatibility"
     serve :result, %w(result), :return => :binary do |result|
       path = @results[result]
       raise ResultNotFound unless File.exist? path
