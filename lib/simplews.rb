@@ -109,6 +109,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
 
     puts "Server #{ name } at #{ host }:#{ port }"
 
+    desc "Return the WSDL describing the web server"
     serve :wsdl, %w(),  :return => :string
     METHODS.each{|name, info|
       serve name, info[:args], info[:types], &info[:block]
@@ -121,8 +122,32 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     default_namespace = "urn:#{name}"
   end
 
-  
+  # Add a description for the next method served.
+  @@last_description = nil
+  @@last_param_description = nil
+  STEP_DESCRIPTIONS = {}
+  PARAMETER_DESCRIPTIONS = {}
+  def desc(text)
+    @@last_description = text
+  end
 
+  # Add descriptions for the parameters of the next method served
+  def param_desc(param_descriptions)
+    @@last_param_description = {} 
+    param_descriptions.each{|param, description| @@last_param_description[param.to_s] = description}
+  end
+
+  # Add a description for the next method served defined in at the class level
+  def self.desc(text)
+    @@last_description = text
+  end
+
+  # Add descriptions for the parameters of the next method served at the class
+  # level
+  def self.param_desc(param_descriptions)
+    @@last_param_description = {} 
+    param_descriptions.each{|param, description| @@last_param_description[param.to_s] = description}
+  end
 
   # This method tells the server to provide a method named by the +name+
   # parameter, with arguments listed in the +args+ parameter. The
@@ -138,7 +163,10 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   # method is taken to return no value. Other than that, if a parameter
   # type is omitted it is taken to be :string.
   def serve(name, args=[], types={}, &block)
-    
+    STEP_DESCRIPTIONS[name] ||= @@last_description 
+    PARAMETER_DESCRIPTIONS[name] ||= @@last_param_description 
+    @@last_description = nil
+    @@last_param_description = nil
     if block
       inline_name = "_inline_" + name.to_s
       add_to_ruby(inline_name, &block)
@@ -156,6 +184,10 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   # instance check if there where any methods declared to be served in the class
   # and add them.
   def self.serve(name, args=[], types={}, &block)
+    STEP_DESCRIPTIONS[name] ||= @@last_description 
+    PARAMETER_DESCRIPTIONS[name] ||= @@last_param_description 
+    @@last_description = nil
+    @@last_param_description = nil
     METHODS[name] = {:args => args, :types => types, :block => block}
   end
 
@@ -193,20 +225,30 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
       args.each{|param|
         type = types[param.to_s] || types[param.to_sym] || :string
         type = type.to_sym
-        xml.part :name => param, :type => TYPES2WSDL[type]
+        xml.part :name => param, :type => TYPES2WSDL[type] do
+          if PARAMETER_DESCRIPTIONS[name] && PARAMETER_DESCRIPTIONS[name][param.to_s]
+            xml.documentation PARAMETER_DESCRIPTIONS[name][param.to_s]
+          end
+        end
       }
     end
     @messages << message
+
     message =  Builder::XmlMarkup.new(:indent => 2).message :name => "#{ name }Response" do |xml|
       type = types[:return] || types["return"] || :string
       if type
         type = type.to_sym
-        xml.part :name => 'return', :type => TYPES2WSDL[type]
-      end
+        end
+        xml.part :name => 'return', :type => TYPES2WSDL[type] do
+          if PARAMETER_DESCRIPTIONS[name] && PARAMETER_DESCRIPTIONS[name]['return']
+            xml.documentation PARAMETER_DESCRIPTIONS[name]['return'] 
+          end
+        end
     end
     @messages << message
 
     operation = Builder::XmlMarkup.new(:indent => 2).operation :name => "#{ name }" do |xml|
+      xml.documentation STEP_DESCRIPTIONS[name]  if STEP_DESCRIPTIONS[name]
       xml.input :message => "tns:#{ name }Request"
       xml.output :message => "tns:#{ name }Response"
     end
