@@ -182,6 +182,11 @@ module Rake::Pipeline
       $_current_job.send(symbol, *args)
     end
   else
+    # Announce steps
+    def step(state, message ="")
+      puts "#{ state }: #{ message }"
+    end
+
     # Add values to the info file
     def info(values = {})
       info = Rake::Pipeline::Info.load_info(@@current_task)
