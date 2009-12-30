@@ -63,7 +63,7 @@ module Rake::Pipeline
       def parse_filename(filename)
         filename.match(/^(.*?)([^\/]*)\/([^\/]*)$/)
         {
-          :prefix => $1,
+          :prefix => $1 == "" ? "." : $1,
           :step => $2,
           :job => $3,
         }
@@ -184,8 +184,6 @@ module Rake::Pipeline
   else
     # Add values to the info file
     def info(values = {})
-      puts "Using rake info"
-      
       info = Rake::Pipeline::Info.load_info(@@current_task)
       info = info.merge values
       Rake::Pipeline::Info.save_info(@@current_task, info)
