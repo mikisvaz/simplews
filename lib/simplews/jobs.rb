@@ -365,6 +365,11 @@ class SimpleWS::Jobs < SimpleWS
   end
 
   def task(name, params=[], types={}, results = [], &block)
+    STEP_DESCRIPTIONS[name.to_s] ||= @@last_description 
+    PARAMETER_DESCRIPTIONS[name.to_s] ||= @@last_param_description 
+    @@last_description = nil
+    @@last_param_description = nil
+
     Scheduler.task name, results, block
     serve name.to_s, params + ['suggested_name'], types.merge(:suggested_name => 'string', :return => :string) do |*args|
       Scheduler.run name, *args
@@ -373,6 +378,11 @@ class SimpleWS::Jobs < SimpleWS
 
   @@tasks = {}
   def self.task(name, params=[], types={}, results =[], &block)
+    STEP_DESCRIPTIONS[name.to_s] ||= @@last_description 
+    PARAMETER_DESCRIPTIONS[name.to_s] ||= @@last_param_description 
+    @@last_description = nil
+    @@last_param_description = nil
+
     Scheduler.task name, results, block
     @@tasks[name] = {:params => params, :types => types};
   end

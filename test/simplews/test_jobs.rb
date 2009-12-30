@@ -4,6 +4,7 @@ require File.dirname(File.dirname(__FILE__)) + '/test_helper.rb'
 class TestJobs < Test::Unit::TestCase
   class TestJWS < SimpleWS::Jobs
 
+    desc "Long process"
     task :process,[],{},['test.txt'] do
       begin
         info(:steps => 3)
@@ -21,8 +22,23 @@ class TestJobs < Test::Unit::TestCase
       end
     end
   end
+  
+  def test_descriptions
+    @server = TestJWS.new("TestJWS", "Asynchronous Job Server", 'localhost', port, "tmp-TestJWS")
 
-  def test_client
+    Thread.new do
+      @server.start
+    end
+
+    driver = SimpleWS.get_driver('http://localhost:' + port, 'TestJWS')
+    assert_match /Return the WSDL/, driver.wsdl
+    assert_match /Long process/, driver.wsdl
+
+    @server.shutdown
+  end
+
+
+  def _test_client
     require 'soap/wsdlDriver'
 
     @server = TestJWS.new("TestJWS", "Asynchronous Job Server", 'localhost', port, "tmp-TestJWS")
