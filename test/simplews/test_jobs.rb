@@ -41,7 +41,7 @@ class TestJobs < Test::Unit::TestCase
   end
 
 
-  def _test_client
+  def test_client
     require 'soap/wsdlDriver'
 
     @server = TestJWS.new("TestJWS", "Asynchronous Job Server", 'localhost', port, "tmp-TestJWS")
