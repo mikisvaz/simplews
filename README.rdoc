@@ -4,6 +4,8 @@ This library simplifies the creation of SOAP web services. It is based on
 soap4r, and adds a DSL for serving methods that create automatically the WSDL.
 Additionally, it offers support for asynchronous jobs.
 
+Documentation and detailed examples available at http://bioinfovm05.dacya.ucm.es/simplews/index.html
+
 == Note on Patches/Pull Requests
  
 * Fork the project.
