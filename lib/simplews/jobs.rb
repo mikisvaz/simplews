@@ -268,6 +268,8 @@ class SimpleWS::Jobs < SimpleWS
 
       def write(file, contents)
         path = Job.path(file, @name)
+        directory = File.dirname(File.expand_path(path))
+        FileUtils.mkdir_p directory unless File.exists? directory
         File.open(path,'w') do |fout|
           fout.write contents
         end
