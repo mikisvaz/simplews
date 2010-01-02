@@ -315,7 +315,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
       type = :string if type.nil? 
       if type
         type = type.to_sym
-        xml.part :name => 'return', :type => TYPES2WSDL[type] do
+        xml.part :name => 'result', :type => TYPES2WSDL[type] do
           param_descriptions = description[:param_descriptions]
 
           if param_descriptions && param_descriptions['return']
