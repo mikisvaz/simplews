@@ -17,9 +17,9 @@ class SimpleWS::Jobs < SimpleWS
   SLEEP_TIMES = {
     :job_info => 1,
     :monitor => 2,
-  }
+  } unless defined? SLEEP_TIMES
   
-  INHERITED_TASKS = {}
+  INHERITED_TASKS = {} unless defined? INHERITED_TASKS
 
   
   #{{{ Scheduler
