@@ -49,7 +49,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   VERSION = "1.3.6"
 
   # Saves method defined in the class to be served by the instances
-  METHODS = {}
+  INHERITED_METHODS    = {}
 
   # This is a helper function for clients. Given the +url+ where the
   # server is listening, as well as the name of the server, it can
@@ -102,16 +102,27 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     @messages    = []
     @operations  = []
     @bindings    = []
+    @method_descriptions = {}
+    @method_order        = []
 
     if block_given?
       instance_eval &block
     end
 
     puts "Server #{ name } at #{ host }:#{ port }"
-
+    
+ 
     desc "Return the WSDL describing the web server"
+    param_desc :return => "WSDL description"
     serve :wsdl, %w(),  :return => :string
-    METHODS.each{|name, info|
+
+    desc "Return HMLT table with documentation for the web service"
+    param_desc :return => "HTML table with documentation"
+    serve :documentation, %w(),  :return => :string
+
+    INHERITED_METHODS.each{|name, info|
+      @@last_description = info[:description]
+      @@last_param_description = info[:param_descriptions]
       serve name, info[:args], info[:types], &info[:block]
     }
   end
@@ -125,26 +136,24 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   # Add a description for the next method served.
   @@last_description = nil
   @@last_param_description = nil
-  STEP_DESCRIPTIONS = {}
-  PARAMETER_DESCRIPTIONS = {}
-  def desc(text)
+  def desc(text = "")
     @@last_description = text
   end
 
   # Add descriptions for the parameters of the next method served
-  def param_desc(param_descriptions)
+  def param_desc(param_descriptions = {})
     @@last_param_description = {} 
     param_descriptions.each{|param, description| @@last_param_description[param.to_s] = description}
   end
 
   # Add a description for the next method served defined in at the class level
-  def self.desc(text)
+  def self.desc(text = "")
     @@last_description = text
   end
 
   # Add descriptions for the parameters of the next method served at the class
   # level
-  def self.param_desc(param_descriptions)
+  def self.param_desc(param_descriptions = {})
     @@last_param_description = {} 
     param_descriptions.each{|param, description| @@last_param_description[param.to_s] = description}
   end
@@ -163,10 +172,14 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   # method is taken to return no value. Other than that, if a parameter
   # type is omitted it is taken to be :string.
   def serve(name, args=[], types={}, &block)
-    STEP_DESCRIPTIONS[name] ||= @@last_description 
-    PARAMETER_DESCRIPTIONS[name] ||= @@last_param_description 
+
+    @method_descriptions[name] = {:args => args, :types => types, :block => block, 
+      :description => @@last_description, :param_descriptions => @@last_param_description}
+    
     @@last_description = nil
     @@last_param_description = nil
+
+    @method_order << name
     if block
       inline_name = "_inline_" + name.to_s
       add_to_ruby(inline_name, &block)
@@ -184,11 +197,10 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   # instance check if there where any methods declared to be served in the class
   # and add them.
   def self.serve(name, args=[], types={}, &block)
-    STEP_DESCRIPTIONS[name] ||= @@last_description 
-    PARAMETER_DESCRIPTIONS[name] ||= @@last_param_description 
+    INHERITED_METHODS[name] = {:args => args, :types => types, :block => block, 
+      :description => @@last_description, :param_descriptions => @@last_param_description}
     @@last_description = nil
     @@last_param_description = nil
-    METHODS[name] = {:args => args, :types => types, :block => block}
   end
 
   # If +filename+ is specified it saves the +WSDL+ file in that file. If
@@ -204,13 +216,73 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     wsdl.gsub!(/\$\{NAME\}/,@name)
     wsdl.gsub!(/\$\{DESCRIPTION\}/,@description)
     wsdl.gsub!(/\$\{LOCATION\}/,"http://#{ @host }:#{ @port }")
+    
     if filename
-      fwsdl = File.open(filename,'w')
-      fwsdl.write(wsdl)
-      fwsdl.close
+      File.open(filename,'w') {|f| f.write wsdl }
       nil
     else
       wsdl
+    end
+  end
+
+  def documentation(filename = nil)
+    html_table =  Builder::XmlMarkup.new(:indent => 2).table :class => "WS_documentation" do |xml|
+      xml.thead do 
+        xml.tr do
+          xml.th "Operation", :class => "WS_operation" 
+          xml.th "Parameters", :class => "WS_parameters"
+          xml.th "Documentation", :class => "WS_documentation" 
+        end
+      end
+      xml.tbody do
+        @method_order.each do |method|
+          desc = @method_descriptions[method][:description] || ""
+          case
+          when method.to_s == 'wsdl' || method.to_s == 'documentation'
+            type = 'WS_documentation'
+          when desc =~ /^Job management:/
+            type = 'WS_job_management'
+          when @method_descriptions[method][:args].include?( :sugested_name )
+            type = 'WS_task'
+          else
+            type = 'WS_normal'
+          end
+          xml.tr :class => type, :id => "WS_method_#{method}" do
+            xml.td method.to_s, :class => "WS_operation" 
+
+            xml.td :class => "WS_parameters" do
+              description = @method_descriptions[method]
+              method_parameters = description[:args]
+              method_parameters += ['return'] unless  description[:types][:return] == false || description[:types]['return'] == false
+              if method_parameters.any?
+                xml.dl :class => "WS_parameter_documentation" do
+                  method_parameters.each do |param|
+                    if param.to_s == 'return'
+                      xml.dt param, :class => 'WS_return' 
+                    else
+                      xml.dt param
+                    end
+                    
+                    if description[:param_descriptions]
+                      xml.dd description[:param_descriptions][param.to_s] || "" 
+                    else
+                      xml.dd
+                    end
+                  end
+                end
+              end
+            end
+            xml.td desc, :class => "WS_documentation" 
+          end
+        end
+      end
+    end
+
+    if filename
+      File.open(filename,'w') {|f| f.write html_table }
+      nil
+    else
+      html_table
     end
   end
 
@@ -221,34 +293,45 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   end
 
   def add_to_wsdl(name, args, types)
+    description = @method_descriptions[name]
     message =  Builder::XmlMarkup.new(:indent => 2).message :name => "#{ name }Request" do |xml|
-      args.each{|param|
+      
+      args.each do |param|
         type = types[param.to_s] || types[param.to_sym] || :string
         type = type.to_sym
+
         xml.part :name => param, :type => TYPES2WSDL[type] do
-          if PARAMETER_DESCRIPTIONS[name] && PARAMETER_DESCRIPTIONS[name][param.to_s]
-            xml.documentation PARAMETER_DESCRIPTIONS[name][param.to_s]
+          param_descriptions = description[:param_descriptions]
+
+          if param_descriptions && param_descriptions[param.to_s]
+            xml.documentation  param_descriptions[param.to_s]
           end
         end
-      }
+
+      end
     end
     @messages << message
 
     message =  Builder::XmlMarkup.new(:indent => 2).message :name => "#{ name }Response" do |xml|
-      type = types[:return] || types["return"] || :string
+      type = [types[:return], types["return"]].compact.first 
+      type = :string if type.nil? 
       if type
         type = type.to_sym
-        end
+
         xml.part :name => 'return', :type => TYPES2WSDL[type] do
-          if PARAMETER_DESCRIPTIONS[name] && PARAMETER_DESCRIPTIONS[name]['return']
-            xml.documentation PARAMETER_DESCRIPTIONS[name]['return'] 
+          param_descriptions = description[:param_descriptions]
+
+          if param_descriptions && param_descriptions['return']
+            xml.documentation  param_descriptions['return']
           end
         end
+
+      end
     end
     @messages << message
 
     operation = Builder::XmlMarkup.new(:indent => 2).operation :name => "#{ name }" do |xml|
-      xml.documentation STEP_DESCRIPTIONS[name]  if STEP_DESCRIPTIONS[name]
+      xml.documentation description[:description]  if description[:description]
       xml.input :message => "tns:#{ name }Request"
       xml.output :message => "tns:#{ name }Response"
     end
@@ -266,9 +349,8 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     end
 
     @bindings << binding
-
   end
-  
+
 
   WSDL_STUB =<<EOT
 <?xml version="1.0"?>

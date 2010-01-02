@@ -36,9 +36,7 @@ server = SimpleWS.new(options[:name], options[:description], options[:host], opt
   eval actions
 end
 
-if options[:wsdl]
-  File.open(options[:wsdl], 'w') do |f| f.write server.wsdl end
-end
+server.wsdl(options[:wsdl]) if options[:wsdl]
 
 trap('INT'){
   puts "Stopping server"

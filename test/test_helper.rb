@@ -6,6 +6,8 @@ $LOAD_PATH.unshift(File.dirname(__FILE__))
 require 'simplews'
 require 'simplews/jobs'
 
+require 'base64'
+
 class Test::Unit::TestCase
   def port
     '2100'

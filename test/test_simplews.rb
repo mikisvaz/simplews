@@ -19,6 +19,8 @@ class TestSimpleWS < Test::Unit::TestCase
           "Bye bye #{name}. See you soon."
       end
 
+      serve :nothing, [], :return => false do end
+
     end
   end
 
@@ -66,5 +68,13 @@ class TestSimpleWS < Test::Unit::TestCase
     assert_match /Parting/, driver.wsdl
   end
 
+  def test_documentation
+    driver = SOAP::WSDLDriverFactory.new( "TestWS.wsdl").create_rpc_driver
+    assert_match /Say Hi/, driver.documentation
+    assert_match /Who to say hi/, driver.documentation
+    assert_match /Who to say goodbye/, driver.documentation
+    assert_match /Salutation/, driver.documentation
+    assert_match /Parting/, driver.documentation
+  end
 
 end

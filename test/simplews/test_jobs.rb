@@ -5,6 +5,7 @@ class TestJobs < Test::Unit::TestCase
   class TestJWS < SimpleWS::Jobs
 
     desc "Long process"
+    param_desc 
     task :process,[],{},['test.txt'] do
       begin
         info(:steps => 3)
@@ -33,7 +34,9 @@ class TestJobs < Test::Unit::TestCase
     driver = SimpleWS.get_driver('http://localhost:' + port, 'TestJWS')
     assert_match /Return the WSDL/, driver.wsdl
     assert_match /Long process/, driver.wsdl
+    assert_match /Job identifier/, driver.wsdl
 
+    puts driver.documentation
     @server.shutdown
   end
 
@@ -64,7 +67,7 @@ class TestJobs < Test::Unit::TestCase
     assert(driver.messages(name).include? "Step3")
     assert(driver.results(name).length == 1)
     result = driver.results(name).first
-    assert_match(name, driver.result(result))
+    assert_match(name, Base64.decode64(driver.result(result)))
 
     name = driver.process("test-abort")
     sleep 2
