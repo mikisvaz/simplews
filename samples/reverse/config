@@ -1,0 +1,8 @@
+desc "Reverse a message"
+param_desc :message => "Message to be reversed"
+task :reverse, %w(message), {:message => :string}, 
+  ['reverse/{JOB}', 'message/{JOB}'] do |message|
+    
+  $message = message
+  rake 
+end

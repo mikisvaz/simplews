@@ -1,0 +1,53 @@
+#!/usr/bin/ruby
+require 'rubygems'
+require 'simplews'
+require "optparse"
+require 'simplews/rake'
+
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: #{ $_ } [options] <config_file>"
+
+  opts.on("-h", "--host HOST", String, "Select host interface, localhost by default") do |host|
+    options[:host] = host
+  end
+
+  opts.on("-p", "--port PORT", Integer, "Select interface port, 1984 by default") do |port|
+    options[:port] = port
+  end
+
+  opts.on("-n", "--name NAME", String, "Select the name of the web server interface, SimpleWS by default") do |name|
+    options[:name] = name
+  end
+
+  opts.on("-d", "--description DESCRIPTION", String, "Description of the service") do |description|
+    options[:description] = description
+  end
+
+  opts.on("-w", "--wsdl FILENAME", String, "Save the WSDL file") do |filename|
+    options[:wsdl] = filename
+  end
+   
+  opts.on("-d", "--directory PATH", String, "Work directory for the WS") do |filename|
+    options[:wsdl] = filename
+  end
+  
+end.parse!
+
+filename = ARGV[0]
+
+server = SimpleWS::Jobs.new(options[:name], options[:description], options[:host], options[:port], options[:directory]) do
+  actions = File.open(filename)do |f| f.read end
+  eval actions
+end
+
+server.wsdl(options[:wsdl]) if options[:wsdl]
+
+trap('INT'){
+  puts "Stopping server"
+  server.shutdown
+}
+
+server.start
+
+

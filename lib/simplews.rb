@@ -46,10 +46,8 @@ require 'builder'
 
 
 class SimpleWS <  SOAP::RPC::StandaloneServer
-  VERSION = "1.3.6"
-
   # Saves method defined in the class to be served by the instances
-  INHERITED_METHODS    = {}
+  INHERITED_METHODS    = {} unless defined? INHERITED_METHODS
 
   # This is a helper function for clients. Given the +url+ where the
   # server is listening, as well as the name of the server, it can
@@ -350,6 +348,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   end
 
 
+  if ! defined? WSDL_STUB
   WSDL_STUB =<<EOT
 <?xml version="1.0"?>
 <definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" 
@@ -399,15 +398,18 @@ ${BINDINGS}
 
 </definitions>
 EOT
+  end
 
-  TYPES2WSDL = {
-    :boolean => 'xsd:boolean',
-    :string  => 'xsd:string',
-    :integer => 'xsd:integer',
-    :float   => 'xsd:float',
-    :array   => 'tns:ArrayOfString',
-    :binary  => 'xsd:base64Binary',
-  }
+  if ! defined? TYPES2WSDL
+    TYPES2WSDL = {
+      :boolean => 'xsd:boolean',
+      :string  => 'xsd:string',
+      :integer => 'xsd:integer',
+      :float   => 'xsd:float',
+      :array   => 'tns:ArrayOfString',
+      :binary  => 'xsd:base64Binary',
+    }
+  end
 
 
 end

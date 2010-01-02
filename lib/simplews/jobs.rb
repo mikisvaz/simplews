@@ -124,7 +124,7 @@ class SimpleWS::Jobs < SimpleWS
       name = @@pids.select{|name, p| p == pid}.first
       return if name.nil?
       name = name.first
-      puts "Process #{ name } with pid #{ pid } finished with exitstatus #{$?.exitstatus}"
+      puts "Job #{ name } with pid #{ pid } finished with exitstatus #{$?.exitstatus}"
       state = Job.job_info(name)
       if ![:error, :done, :aborted].include?(state[:status])
         state[:status] = :error
