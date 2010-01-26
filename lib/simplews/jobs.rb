@@ -471,7 +471,7 @@ class SimpleWS::Jobs < SimpleWS
     param_desc :result => "Result identifier", :return => "Content of the result file, in Base64 encoding for compatibility"
     serve :result, %w(result), :return => :binary do |result|
       path = @results[result]
-      raise ResultNotFound unless File.exist? path
+      raise ResultNotFound if path.nil? || ! File.exist?(path)
       Base64.encode64 File.open(path).read
     end
 
