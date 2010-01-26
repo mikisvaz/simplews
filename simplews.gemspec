@@ -5,14 +5,14 @@
 
 Gem::Specification.new do |s|
   s.name = %q{simplews}
-  s.version = "1.8.2"
+  s.version = "1.8.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Miguel Vazquez"]
-  s.date = %q{2010-01-03}
+  s.date = %q{2010-01-26}
   s.description = %q{Generates WSDL automatically. It manages jobs as asynchronous processes}
   s.email = %q{miguel.vazquez@fdi.ucm.es}
-  s.executables = ["start_jobs_ws", "start_ws"]
+  s.executables = ["start_ws", "start_jobs_ws"]
   s.extra_rdoc_files = [
     "LICENSE",
      "README.rdoc"
