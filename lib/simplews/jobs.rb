@@ -290,9 +290,10 @@ class SimpleWS::Jobs < SimpleWS
         save
       end
 
-      def info(info)
+      def info(info = {})
         @state[:info].merge!(info)
         save
+        @state[:info]
       end
 
       def results(results)

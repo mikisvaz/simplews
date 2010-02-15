@@ -118,56 +118,65 @@ module Rake::Pipeline
     Rake::Pipeline::Step.step_descriptions
   end
 
-
   def step_dependencies(*args)
     Rake::Pipeline::Step.step_dependencies(*args)
   end
 
-  def infile(t, &block)
-    File.open(t.prerequisites.first) do |f|
-      block.call(f)
-    end
+  def step_dir(step = nil, filename = nil)
+    filename ||= @@current_task.name
+    info = Rake::Pipeline::Step.parse_filename(filename)
+    "%s/%s" % [info[:prefix], step || info[:step]]
   end
 
-  def outfile(t, &block)
-    File.open(t.name, 'w') do |f|
-      block.call(f)
-    end
-  end
-
-  def load_input(t, step = nil)
-    if step
-      info = Rake::Pipeline::Step.parse_filename(t.name)
-      filename = "#{info[:prefix]}/#{step}/#{info[:job]}"
-      File.open(filename){|f| 
-        if is_binary?(f)
-          Marshal.load(f) 
-        else
-          f.read
-        end
-      }
+  def input_filename(task = nil, step = nil)
+    task ||= @@current_task
+    if step.nil?
+      task.prerequisites.first
     else
-      return nil if t.prerequisites.first.nil?
-      infile(t){|f| 
-        if is_binary?(f)
-          Marshal.load(f) 
-        else
-          f.read
-        end
-      }
+      File.join(step_dir(step, task.name), job_name)
     end
   end
 
-  def save_output(t, output)
+  def output_filename(task = nil)
+    task ||= @@current_task
+    task.name
+  end
+
+
+  def infile(task, step = nil,  &block)
+    filename = input_filename(task, step)
+    File.open(filename) do |f|
+      block.call(f)
+    end
+  end
+
+  def outfile(task, &block)
+    filename = output_filename(task)
+    File.open(filename, 'w') do |f|
+      block.call(f)
+    end
+  end
+
+  def load_input(task, step = nil)
+    infile(task, step) do |f|
+      if is_binary?(f)
+        Marshal.load(f) 
+      else
+        f.read
+      end
+    end
+  end
+     
+
+  def save_output(task, output)
     case 
     when output.nil?
       nil
     when String === output
-      outfile(t){|f| f.write output } 
+      outfile(task){|f| f.write output } 
     else
-      outfile(t){|f| f.write Marshal.dump(output) } 
+      outfile(task){|f| f.write Marshal.dump(output) } 
     end
-
   end
 
   # We cannot load the input variable before the block.call, so we need another method
@@ -179,7 +188,11 @@ module Rake::Pipeline
 
   if defined? SimpleWS::Jobs
     def method_missing(symbol, *args)
-      $_current_job.send(symbol, *args)
+      if $_current_job.methods.include? symbol.to_s
+        $_current_job.send(symbol, *args)
+      else
+        raise "Method #{ symbol } not found"
+      end
     end
   else
     # Announce steps
@@ -194,11 +207,12 @@ module Rake::Pipeline
       Rake::Pipeline::Info.save_info(@@current_task, info)
       info
     end
+
+    def job_name
+      File.basename(@@current_task.name)
+    end
   end
 
-  
-  
-  
   # Define a new step, it depends on the previously defined by default. It
   # saves the output of the block so it can be loaded by the input method of
   # the next step

@@ -18,7 +18,7 @@ class SimpleWS::Jobs::Scheduler::Job
   # 'execute' method of the Rake::Tasks class method execute is monkey-patched
   # to log the steps. Since this is executed on a new process, there should be
   # no side-effects from the patching.
-  def rake(rakefile = "Rakefile")
+  def rake(rakefile = "Rakefile", target = nil)
     Rake::Task.class_eval <<-'EOC'
       alias_method :old_execute, :execute
       def execute(*args)
@@ -60,10 +60,12 @@ class SimpleWS::Jobs::Scheduler::Job
     end
 
     files = result_filenames
+    target ||= files.first
 
     $_current_job = self
     $_step_descriptions = @step_descriptions || {}
-    Rake::Task[files.first].invoke
+
+    Rake::Task[target].invoke
   end
 
 end
