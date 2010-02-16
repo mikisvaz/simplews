@@ -34,6 +34,10 @@ class SimpleWS::Jobs < SimpleWS
     @@queue = []
     @@max_jobs = 3
 
+    def self.queue_size(size)
+      @@max_jobs = size
+    end
+
    
     def self.random_name(s="", num=20)
       num.times{
@@ -87,7 +91,7 @@ class SimpleWS::Jobs < SimpleWS
     end
 
     def self.dequeue
-      if @@pids.length <= @@max_jobs && @@queue.any?
+      if @@pids.length <  @@max_jobs && @@queue.any?
         job_info = @@queue.pop
 
         pid = Job.new.run(job_info[:task], job_info[:name], @@task_results[job_info[:task]], *job_info[:args])

@@ -22,6 +22,8 @@ class TestJobs < Test::Unit::TestCase
         error($!.message)
       end
     end
+
+    Scheduler.queue_size 2
   end
   
   def test_descriptions
