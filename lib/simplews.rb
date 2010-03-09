@@ -216,6 +216,8 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     wsdl.gsub!(/\$\{LOCATION\}/,"http://#{ @host }:#{ @port }")
     
     if filename
+      directory = File.dirname(File.expand_path(filename))
+      FileUtils.mkdir_p directory unless File.exists? directory
       File.open(filename,'w') {|f| f.write wsdl }
       nil
     else
@@ -277,6 +279,8 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     end
 
     if filename
+      directory = File.dirname(File.expand_path(filename))
+      FileUtils.mkdir_p directory unless File.exists? directory
       File.open(filename,'w') {|f| f.write html_table }
       nil
     else
