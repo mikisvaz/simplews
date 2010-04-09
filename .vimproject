@@ -11,6 +11,7 @@ SimpleWS=/$PWD filter="*.rb Rakefile *.sh *.rake *.txt" {
   simplews=simplews {
    jobs.rb
    rake.rb
+   monitor.rb
   }
  }
  test=test {
