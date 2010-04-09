@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{simplews}
-  s.version = "1.9.1"
+  s.version = "1.10.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Miguel Vazquez"]
-  s.date = %q{2010-02-16}
+  s.date = %q{2010-04-09}
   s.description = %q{Generates WSDL automatically. It manages jobs as asynchronous processes}
   s.email = %q{miguel.vazquez@fdi.ucm.es}
   s.executables = ["start_ws", "start_jobs_ws"]
@@ -21,12 +21,13 @@ Gem::Specification.new do |s|
     "lib/rake_pipeline.rb",
      "lib/simplews.rb",
      "lib/simplews/jobs.rb",
+     "lib/simplews/notifier.rb",
      "lib/simplews/rake.rb"
   ]
   s.homepage = %q{http://github.com/mikisvaz/simplews}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Simplifies creating soap4r web services as stand-alone servers}
 
   if s.respond_to? :specification_version then
