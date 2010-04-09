@@ -71,7 +71,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     tmp = File.open("/tmp/simpleWS.wsdl",'w')
     tmp.write SimpleWS::get_wsdl(url, name)
     tmp.close
-    driver = SOAP::WSDLDriverFactory.new( "/tmp/simpleWS.wsdl"  ).create_rpc_driver
+    driver = SOAP::WSDLDriverFactory.new("/tmp/simpleWS.wsdl").create_rpc_driver
     FileUtils.rm "/tmp/simpleWS.wsdl"
 
     driver

@@ -28,8 +28,8 @@ OptionParser.new do |opts|
     options[:wsdl] = filename
   end
    
-  opts.on("-d", "--directory PATH", String, "Work directory for the WS") do |filename|
-    options[:wsdl] = filename
+  opts.on("-t", "--path PATH", String, "Work directory for the WS") do |filename|
+    options[:directory] = filename
   end
   
 end.parse!
