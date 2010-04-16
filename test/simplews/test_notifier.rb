@@ -3,8 +3,7 @@ require File.dirname(File.dirname(__FILE__)) + '/test_helper.rb'
 require 'simplews/notifier'
 require 'soap/wsdlDriver'
 
-MAIL="mikisvaz@gmail.com"
-#MAIL="change.to@your.mail.com"
+MAIL="change.to@your.mail.com"
 
 WSDL_FILE='TestMonitor_Simplews.wsdl'
 
@@ -23,7 +22,7 @@ class TestMonitor < Test::Unit::TestCase
   @@server.wsdl WSDL_FILE
 
 
-  @@monitor = SimpleWS::Jobs::Notifier.new("Test", "localhost:1984", WSDL_FILE, :smtp_host => 'ucsmtp.ucm.es')
+  @@monitor = SimpleWS::Jobs::Notifier.new("Test", "localhost:1984", WSDL_FILE, :smtp_host => 'ucsmtp.ucm.es', :filename => '/tmp/monitor.marshal')
 
   @@driver = SOAP::WSDLDriverFactory.new(WSDL_FILE).create_rpc_driver
 

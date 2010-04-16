@@ -27,11 +27,23 @@ class SimpleWS::Jobs::Notifier
     @smtp_host  = options[:smtp_host] || 'localhost'
     @smtp_port  = options[:smtp_port] || 25
     @sleep_time = options[:sleep_time] || 2
-    @jobs = {}
+    @filename   = options[:filename]
+    
+    if @filename && File.exists?(@filename)
+      @jobs = Marshal.load(File.open(@filename))
+    else
+      @jobs = {}
+    end
   end
 
   def add_job(job_id, email)
     @jobs[job_id] = email
+    File.open(@filename, 'w') do |f| f.write Marshal.dump(@jobs) end if @filename
+  end
+
+  def delete_job(job_id)
+    @jobs.delete(job_id)
+    File.open(@filename, 'w') do |f| f.write Marshal.dump(@jobs) end if @filename
   end
 
   def process
@@ -42,7 +54,7 @@ class SimpleWS::Jobs::Notifier
         else
           success(job_id, email)
         end
-        @jobs.delete(job_id)
+        delete_job(job_id)
       end
     end
   end
