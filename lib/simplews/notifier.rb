@@ -49,12 +49,15 @@ class SimpleWS::Jobs::Notifier
   def process
     @jobs.each do |job_id, email|
       if driver.done job_id
-        if driver.error job_id
-          error(job_id, email, driver.messages(job_id).last)
-        else
-          success(job_id, email)
+        begin
+          if driver.error job_id
+            error(job_id, email, driver.messages(job_id).last)
+          else
+            success(job_id, email)
+          end
+        ensure
+          delete_job(job_id)
         end
-        delete_job(job_id)
       end
     end
   end
