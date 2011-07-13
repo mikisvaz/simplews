@@ -408,6 +408,7 @@ EOT
     TYPES2WSDL = {
       :boolean => 'xsd:boolean',
       :string  => 'xsd:string',
+      :tsv     => 'xsd:string',
       :integer => 'xsd:integer',
       :float   => 'xsd:float',
       :array   => 'tns:ArrayOfString',
