@@ -417,6 +417,12 @@ class SimpleWS::Jobs < SimpleWS
 
     desc "Job management: Return the names of the jobs in the queue"
     param_desc :return => "Array of job names"
+    serve :test, [], :return => :integer do 
+      7
+    end
+
+    desc "Job management: Return the names of the jobs in the queue"
+    param_desc :return => "Array of job names"
     serve :queue, [], :return => :array do 
       Scheduler.queue.collect{|info| info[:name]}
     end
@@ -436,7 +442,7 @@ class SimpleWS::Jobs < SimpleWS
     desc "Job management: Return a YAML string containing arbitrary information set up by the job"
     param_desc :job => "Job identifier", :return => "Hash with arbitrary values in YAML format"
     serve :info, ['job'], :job => :string, :return => :string do |job|
-      Scheduler.job_info(job)[:info].to_yaml
+     Scheduler.job_info(job)[:info].to_yaml
     end
 
     desc "Job management: Abort the job"

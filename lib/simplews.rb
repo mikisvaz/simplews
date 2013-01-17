@@ -1,5 +1,5 @@
 require 'rubygems'
-gem 'soap4r', :git => 'git://github.com/felipec/soap4r.git'
+gem 'rubyjedi-soap4r' #, :git => 'git://github.com/felipec/soap4r.git'
 require 'soap/rpc/standaloneServer'
 require 'builder'
 require 'continuation'
@@ -350,6 +350,14 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
 
     @bindings << binding
   end
+#<!--         <complexType name="ArrayOfString">
+#            <complexContent>
+#               <restriction base="soapenc:Array">
+#                  <attribute ref="soapenc:arrayType" 
+#                  wsdl:arrayType="string[]"/>
+#               </restriction>
+#            </complexContent>
+#         </complexType> -->
 
 
   if ! defined? WSDL_STUB
@@ -372,15 +380,15 @@ targetNamespace="${NAME}-NS">
          targetNamespace="${NAME}-NS"
          xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
          xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
-         <complexType name="ArrayOfString">
-            <complexContent>
-               <restriction base="soapenc:Array">
-                  <attribute ref="soapenc:arrayType" 
-                  wsdl:arrayType="string[]"/>
-               </restriction>
-            </complexContent>
-         </complexType>
-       </schema>
+
+         <xsd:complexType name="ArrayOfstring">
+           <xsd:sequence>
+              <xsd:element name="x" type="xsd:string" 
+                  minOccurs="0" maxOccurs="unbounded"/>
+           </xsd:sequence>
+         </xsd:complexType>
+
+       </schema> 
    </types>
 
 ${MESSAGES}
@@ -413,7 +421,7 @@ EOT
       :yaml    => 'xsd:string',
       :integer => 'xsd:integer',
       :float   => 'xsd:float',
-      :array   => 'tns:ArrayOfString',
+      :array   => 'tns:ArrayOfstring',
       :binary  => 'xsd:base64Binary',
     }
   end

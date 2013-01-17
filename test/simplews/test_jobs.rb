@@ -25,7 +25,7 @@ class TestJobs < Test::Unit::TestCase
     Scheduler.queue_size 2
   end
 
-  def _test_descriptions
+  def test_descriptions
     @server = TestJWS.new("TestJWS", "Asynchronous Job Server", 'localhost', port, "tmp-TestJWS")
 
     Thread.new do
@@ -50,17 +50,20 @@ class TestJobs < Test::Unit::TestCase
       @server.start
     end
 
-
     driver = SimpleWS.get_driver('http://localhost:' + port, 'TestJWS')
 
-    name = driver.process("test")
+    driver.wsdl
+    
+    name = driver.process("test2")
 
     puts "Job name #{ name }"
 
+    assert( ! String === driver.done(name) )
     while !driver.done(name)
       puts "status: " + driver.status(name)
       sleep 1
     end
+
 
     assert_equal(3, YAML.load(driver.info(name))[:steps])
     assert(!driver.error(name))
