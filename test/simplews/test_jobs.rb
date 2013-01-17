@@ -1,8 +1,6 @@
 require File.dirname(File.dirname(__FILE__)) + '/test_helper.rb'
 require 'rbbt-util'
 
-require 'continuation'
-
 class TestJobs < Test::Unit::TestCase
   class TestJWS < SimpleWS::Jobs
 

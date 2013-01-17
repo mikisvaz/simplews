@@ -2,6 +2,7 @@ require 'rubygems'
 gem 'soap4r', :git => 'git://github.com/felipec/soap4r.git'
 require 'soap/rpc/standaloneServer'
 require 'builder'
+require 'continuation'
 
 
 # SimpleWS is a class that wraps SOAP::RPC::StandaloneServer to ease the
