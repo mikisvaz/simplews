@@ -1,5 +1,5 @@
 require 'rubygems'
-gem 'soap4r'
+gem 'soap4r', :git => 'git://github.com/felipec/soap4r.git'
 require 'soap/rpc/standaloneServer'
 require 'builder'
 
