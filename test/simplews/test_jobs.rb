@@ -1,12 +1,13 @@
 require File.dirname(File.dirname(__FILE__)) + '/test_helper.rb'
+require 'rbbt-util'
 
+require 'continuation'
 
 class TestJobs < Test::Unit::TestCase
   class TestJWS < SimpleWS::Jobs
 
     desc "Long process"
-    param_desc 
-    task :process,[],{},['test.txt'] do
+    task :process, [], {}, ['test.txt'] do
       begin
         info(:steps => 3)
         write('test.txt', job_name)
@@ -25,8 +26,8 @@ class TestJobs < Test::Unit::TestCase
 
     Scheduler.queue_size 2
   end
-  
-  def test_descriptions
+
+  def _test_descriptions
     @server = TestJWS.new("TestJWS", "Asynchronous Job Server", 'localhost', port, "tmp-TestJWS")
 
     Thread.new do
@@ -38,7 +39,6 @@ class TestJobs < Test::Unit::TestCase
     assert_match /Long process/, driver.wsdl
     assert_match /Job identifier/, driver.wsdl
 
-    puts driver.documentation
     @server.shutdown
   end
 
@@ -55,8 +55,8 @@ class TestJobs < Test::Unit::TestCase
 
     driver = SimpleWS.get_driver('http://localhost:' + port, 'TestJWS')
 
-
     name = driver.process("test")
+
     puts "Job name #{ name }"
 
     while !driver.done(name)
@@ -80,7 +80,7 @@ class TestJobs < Test::Unit::TestCase
     puts driver.messages(name)
     assert(driver.aborted(name))
 
-    FileUtils.cp "tmp-TestJWS/.save/test-abort.marshal", "tmp-TestJWS/.save/copy.marshal"
+    FileUtils.cp "tmp-TestJWS/.save/#{name}.marshal", "tmp-TestJWS/.save/copy.marshal"
     assert(driver.aborted("copy"))
     
     # Test queue

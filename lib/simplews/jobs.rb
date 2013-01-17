@@ -45,9 +45,9 @@ class SimpleWS::Jobs < SimpleWS
         if r < 0.3
           s << (rand * 10).to_i.to_s
         elsif r < 0.6
-          s << (rand * (?z - ?a) + ?a).to_i.chr
-        else 
-          s << (rand * (?Z - ?A) + ?A).to_i.chr
+          s << (rand * ("z".ord - "a".ord) + "a".ord).to_i.chr
+        else                               
+          s << (rand * ("Z".ord - "A".ord) + "A".ord).to_i.chr
         end
       }
       s.to_s

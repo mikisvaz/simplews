@@ -170,7 +170,6 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   # method is taken to return no value. Other than that, if a parameter
   # type is omitted it is taken to be :string.
   def serve(name, args=[], types={}, &block)
-
     @method_descriptions[name] = {:args => args, :types => types, :block => block, 
       :description => @@last_description, :param_descriptions => @@last_param_description}
     
@@ -178,12 +177,12 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
     @@last_param_description = nil
 
     @method_order << name
-    if block
+    if block_given?
       inline_name = "_inline_" + name.to_s
       add_to_ruby(inline_name, &block)
-      add_method_as(self,inline_name, name.to_s,*args)
+      add_method_as(self, inline_name, name.to_s,*args)
     else
-      add_method(self,name.to_s,*args)
+      add_method(self, name.to_s,*args)
     end
 
     add_to_wsdl(name, args, types)
@@ -291,7 +290,7 @@ class SimpleWS <  SOAP::RPC::StandaloneServer
   private
 
   def add_to_ruby(name, &block)
-    self.class.send(:define_method, name, block)
+    class << self; self; end.send(:define_method, name, block)
   end
 
   def add_to_wsdl(name, args, types)
