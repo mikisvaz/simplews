@@ -4,14 +4,14 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{simplews}
-  s.version = "1.10.2"
+  s.name = "simplews"
+  s.version = "1.10.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Miguel Vazquez"]
-  s.date = %q{2011-08-05}
-  s.description = %q{Generates WSDL automatically. It manages jobs as asynchronous processes}
-  s.email = %q{miguel.vazquez@fdi.ucm.es}
+  s.date = "2013-01-17"
+  s.description = "Generates WSDL automatically. It manages jobs as asynchronous processes"
+  s.email = "miguel.vazquez@fdi.ucm.es"
   s.executables = ["start_jobs_ws", "start_ws"]
   s.extra_rdoc_files = [
     "LICENSE",
@@ -24,10 +24,10 @@ Gem::Specification.new do |s|
     "lib/simplews/notifier.rb",
     "lib/simplews/rake.rb"
   ]
-  s.homepage = %q{http://github.com/mikisvaz/simplews}
+  s.homepage = "http://github.com/mikisvaz/simplews"
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.6.2}
-  s.summary = %q{Simplifies creating soap4r web services as stand-alone servers}
+  s.rubygems_version = "1.8.24"
+  s.summary = "Simplifies creating soap4r web services as stand-alone servers"
 
   if s.respond_to? :specification_version then
     s.specification_version = 3
